@@ -1,17 +1,50 @@
+import Link from "next/link";
+
+const footerLinks = [
+  { href: "/", label: "Shop" },
+  { href: "/products", label: "Products" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Custom Order" },
+];
+
 export default function Footer() {
   return (
-    <footer className="bg-brand-card border-t border-white/5 mt-auto">
+    <footer className="bg-poke-card border-t border-poke-border mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <span className="font-display text-brand-gold font-black text-lg">Binding</span>
-            <span className="font-display text-brand-text font-black text-lg">Buddy</span>
-            <p className="text-brand-muted text-xs mt-1">
-              Custom laser-engraved Pokemon binders, made to order.
+            <span className="font-display text-poke-yellow font-bold text-lg">
+              Binding
+            </span>
+            <span className="font-display text-poke-text font-bold text-lg">
+              Buddy
+            </span>
+            <p className="text-poke-muted text-xs mt-1 max-w-xs">
+              Custom laser-engraved Pokemon binders, made to order for serious
+              collectors.
             </p>
           </div>
-          <p className="text-brand-muted/50 text-xs">
-            © {new Date().getFullYear()} Binding Buddy. All rights reserved.
+
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-poke-muted">
+            {footerLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="hover:text-poke-text transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+
+        <div className="mt-8 pt-6 border-t border-poke-border flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-poke-muted/50 text-xs">
+            &copy; {new Date().getFullYear()} Binding Buddy. All rights
+            reserved.
+          </p>
+          <p className="text-poke-muted/40 text-xs">
+            Not affiliated with The Pok&eacute;mon Company or Nintendo.
           </p>
         </div>
       </div>

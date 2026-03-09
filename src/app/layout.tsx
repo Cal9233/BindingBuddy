@@ -1,21 +1,20 @@
 import type { Metadata } from "next";
-import { Exo_2, Inter } from "next/font/google";
+import { Barlow_Condensed, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { CartProvider } from "@/context/CartContext";
-import ReferralCapture from "@/components/referral/ReferralCapture";
-import Header from "@/components/layout/Header";
+import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import PageTransition from "@/components/layout/PageTransition";
 
-const exo2 = Exo_2({
+const barlowCondensed = Barlow_Condensed({
   subsets: ["latin"],
-  weight: ["400", "600", "700", "800", "900"],
-  variable: "--font-exo2",
+  weight: ["400", "600", "700"],
+  variable: "--font-barlow-condensed",
   display: "swap",
 });
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-dm-sans",
   display: "swap",
 });
 
@@ -31,14 +30,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${exo2.variable} ${inter.variable}`}>
-      <body className="flex flex-col min-h-screen bg-brand-bg font-sans text-brand-text">
-        <CartProvider>
-          <ReferralCapture />
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </CartProvider>
+    <html
+      lang="en"
+      className={`${barlowCondensed.variable} ${dmSans.variable}`}
+    >
+      <body className="flex flex-col min-h-screen bg-poke-dark font-sans text-poke-text">
+        <Navbar />
+        <main className="flex-1">
+          <PageTransition>{children}</PageTransition>
+        </main>
+        <Footer />
       </body>
     </html>
   );

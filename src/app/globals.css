@@ -5,10 +5,50 @@
 html,
 body {
   min-height: 100vh;
-  background-color: #08080F;
-  color: #F0F0F0;
+  background-color: #0f1117;
+  color: #f0f0f8;
 }
 
 * {
   box-sizing: border-box;
+}
+
+@keyframes holo-rotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.holo {
+  position: relative;
+  overflow: hidden;
+}
+
+.holo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 20%,
+    rgba(255, 203, 5, 0.08) 30%,
+    rgba(60, 90, 166, 0.12) 40%,
+    rgba(255, 203, 5, 0.08) 50%,
+    transparent 60%
+  );
+  background-size: 200% 200%;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  animation: holo-rotate 3s ease infinite;
+}
+
+.holo:hover::after {
+  opacity: 1;
 }

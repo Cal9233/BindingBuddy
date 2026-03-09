@@ -5,19 +5,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          bg: "#08080F",
-          card: "#0F0F1C",
-          red: "#CC2222",
-          purple: "#7B2FFF",
-          gold: "#4D9FFF",
-          text: "#F0F0F0",
-          muted: "#8888AA",
-        },
+        "poke-blue": "#3C5AA6",
+        "poke-yellow": "#FFCB05",
+        "poke-dark": "#0F1117",
+        "poke-card": "#1A1D27",
+        "poke-border": "#2A2D3A",
+        "poke-text": "#F0F0F8",
+        "poke-muted": "#8B8FA8",
+        "poke-gold": "#B3A125",
       },
       fontFamily: {
-        display: ["var(--font-exo2)", "sans-serif"],
-        sans: ["var(--font-inter)", "sans-serif"],
+        display: ["var(--font-barlow-condensed)", "sans-serif"],
+        sans: ["var(--font-dm-sans)", "sans-serif"],
       },
     },
   },
