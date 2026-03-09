@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getFeaturedProducts, getAllProducts } from "@/lib/products";
 import Hero from "@/components/sections/Hero";
 import FeaturedProducts from "@/components/sections/FeaturedProducts";
@@ -6,9 +8,9 @@ import ProcessSection from "@/components/sections/ProcessSection";
 import Testimonials from "@/components/sections/Testimonials";
 import ProductCard from "@/components/ui/ProductCard";
 
-export default function HomePage() {
-  const featured = getFeaturedProducts();
-  const all = getAllProducts();
+export default async function HomePage() {
+  const featured = await getFeaturedProducts();
+  const all = await getAllProducts();
 
   return (
     <>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Product } from "@/types/product";
+import type { Product } from "@/lib/products";
 import { useCartStore } from "@/lib/cart-store";
 
 interface Props {

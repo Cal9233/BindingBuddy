@@ -1,11 +1,10 @@
+export const dynamic = "force-dynamic";
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  getProductBySlug,
-  getAllProducts,
-  formatPrice,
-} from "@/lib/products";
+import { getProductBySlug, getAllProducts } from "@/lib/products";
+import { formatPrice } from "@/lib/format";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import Badge from "@/components/ui/Badge";
 import type { Metadata } from "next";
@@ -19,13 +18,20 @@ const categoryLabel: Record<string, string> = {
   "engraving-only": "Engraving Service",
 };
 
-export function generateStaticParams() {
-  return getAllProducts().map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  try {
+    const products = await getAllProducts();
+    return products.map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
 }
+
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) return {};
   return {
     title: `${product.name} – Binding Buddy`,
@@ -35,10 +41,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const product = getProductBySlug(slug);
+  const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const related = getAllProducts()
+  const allProducts = await getAllProducts();
+  const related = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 3);
 

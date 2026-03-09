@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Product } from "@/types/product";
-import { formatPrice } from "@/lib/products";
+import type { Product } from "@/lib/products";
+import { formatPrice } from "@/lib/format";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import Badge from "./Badge";
 import HoloCard from "./HoloCard";

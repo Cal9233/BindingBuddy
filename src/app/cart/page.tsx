@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCartStore, useTotalItems, useTotalPrice } from "@/lib/cart-store";
-import { formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/format";
 import Button from "@/components/ui/Button";
 
 export default function CartPage() {
