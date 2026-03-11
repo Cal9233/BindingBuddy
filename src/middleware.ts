@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Store referral cookie — from ?ref= query param OR /ref/[slug] path
   const response = NextResponse.next();
-  const storeRef = request.nextUrl.searchParams.get("ref");
+  const queryRef = request.nextUrl.searchParams.get("ref");
+  const pathMatch = pathname.match(/^\/ref\/([a-z0-9-]+)$/);
+  const storeRef = queryRef || (pathMatch ? pathMatch[1] : null);
 
   if (storeRef) {
     response.cookies.set("store_ref", storeRef.trim().toLowerCase(), {

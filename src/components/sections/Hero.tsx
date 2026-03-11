@@ -18,7 +18,7 @@ export default function Hero() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="relative max-w-5xl mx-auto text-center"
       >
-        <span className="inline-block bg-poke-blue/10 border border-poke-blue/30 text-poke-blue text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-6">
+        <span className="inline-block bg-poke-blue/20 border border-poke-blue/40 text-poke-blue text-xs font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full mb-6">
           xTool Laser Engraved &middot; Made to Order
         </span>
 

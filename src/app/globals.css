@@ -37,9 +37,9 @@ body {
   background: linear-gradient(
     135deg,
     transparent 20%,
-    rgba(255, 203, 5, 0.08) 30%,
-    rgba(60, 90, 166, 0.12) 40%,
-    rgba(255, 203, 5, 0.08) 50%,
+    rgba(230, 57, 70, 0.08) 30%,
+    rgba(59, 107, 158, 0.12) 40%,
+    rgba(230, 57, 70, 0.08) 50%,
     transparent 60%
   );
   background-size: 200% 200%;

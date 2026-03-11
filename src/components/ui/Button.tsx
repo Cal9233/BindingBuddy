@@ -14,7 +14,7 @@ interface ButtonProps {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    "bg-poke-yellow text-poke-dark font-bold hover:opacity-90 active:scale-[0.97]",
+    "bg-poke-yellow text-white font-bold hover:opacity-90 active:scale-[0.97]",
   secondary:
     "border border-poke-border text-poke-text font-semibold hover:border-poke-blue/50 hover:bg-poke-blue/5",
   ghost:

@@ -12,7 +12,7 @@ export interface Product {
   price: number;
   image: string;
   images?: string[];
-  category: "engraved-binder" | "engraving-only";
+  category: "engraved-binder" | "engraving-only" | "villain-logo-binder" | "design-collection";
   featured: boolean;
   stock: number;
   pokemon?: string;

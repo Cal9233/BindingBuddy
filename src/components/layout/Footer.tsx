@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const footerLinks = [
   { href: "/", label: "Shop" },
@@ -13,12 +14,19 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <span className="font-display text-poke-yellow font-bold text-lg">
-              Binding
-            </span>
-            <span className="font-display text-poke-text font-bold text-lg">
-              Buddy
-            </span>
+            <div className="flex items-center gap-2 mb-1">
+              <Image
+                src="/images/logo.png"
+                alt="Binding Buddy"
+                width={28}
+                height={28}
+                className="w-7 h-7"
+              />
+              <span className="font-display font-bold text-lg">
+                <span className="text-poke-yellow">Binding</span>
+                <span className="text-poke-text">Buddy</span>
+              </span>
+            </div>
             <p className="text-poke-muted text-xs mt-1 max-w-xs">
               Custom laser-engraved Pokemon binders, made to order for serious
               collectors.

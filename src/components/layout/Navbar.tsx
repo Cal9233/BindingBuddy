@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useTotalItems } from "@/lib/cart-store";
 
 const navLinks = [
@@ -20,6 +21,13 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
+          <Image
+            src="/images/logo.png"
+            alt="Binding Buddy"
+            width={36}
+            height={36}
+            className="w-9 h-9"
+          />
           <span className="font-display font-bold text-xl text-poke-text leading-tight tracking-tight">
             Binding<span className="text-poke-yellow">Buddy</span>
           </span>
@@ -59,9 +67,8 @@ export default function Navbar() {
                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
               />
             </svg>
-            <span className="hidden sm:inline text-sm font-medium">Cart</span>
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 bg-poke-yellow text-poke-dark text-xs font-black rounded-full font-display">
+              <span className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 bg-poke-yellow text-white text-xs font-black rounded-full font-display">
                 {totalItems > 99 ? "99+" : totalItems}
               </span>
             )}

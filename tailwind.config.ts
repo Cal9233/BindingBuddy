@@ -5,14 +5,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "poke-blue": "#3C5AA6",
-        "poke-yellow": "#FFCB05",
+        "poke-blue": "#3B6B9E",
+        "poke-yellow": "#E63946",
         "poke-dark": "#0F1117",
         "poke-card": "#1A1D27",
         "poke-border": "#2A2D3A",
         "poke-text": "#F0F0F8",
         "poke-muted": "#8B8FA8",
-        "poke-gold": "#B3A125",
+        "poke-gold": "#2EC4B6",
       },
       fontFamily: {
         display: ["var(--font-barlow-condensed)", "sans-serif"],

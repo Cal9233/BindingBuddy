@@ -66,6 +66,8 @@ export const Products: CollectionConfig = {
       options: [
         { label: "Engraved Binder", value: "engraved-binder" },
         { label: "Engraving Only", value: "engraving-only" },
+        { label: "Villain Logo Binder", value: "villain-logo-binder" },
+        { label: "Design Collection", value: "design-collection" },
       ],
     },
     {

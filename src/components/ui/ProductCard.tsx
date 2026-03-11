@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/types/product";
-import { formatPrice } from "@/lib/products";
+import { formatPrice } from "@/lib/format-price";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import Badge from "./Badge";
 import HoloCard from "./HoloCard";
@@ -13,6 +13,8 @@ interface Props {
 const categoryLabel: Record<Product["category"], string> = {
   "engraved-binder": "Engraved Binder",
   "engraving-only": "Engraving Service",
+  "villain-logo-binder": "Villain Logo Binder",
+  "design-collection": "Design Collection",
 };
 
 export default function ProductCard({ product }: Props) {

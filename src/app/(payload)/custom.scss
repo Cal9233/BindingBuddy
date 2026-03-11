@@ -1,0 +1,466 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+
+@keyframes totp-spin {
+  to { transform: rotate(360deg); }
+}
+
+@layer payload {
+  /* ============================================
+     BINDING BUDDY — Pokemon Admin Theme
+     ============================================ */
+
+  /* --- Base Color Ramp Override ---
+     In dark mode Payload reverses the elevation mapping,
+     so --color-base-900 becomes --theme-elevation-0 (background). */
+  :root {
+    --color-base-0: #F8F8FF;
+    --color-base-50: #F0F0F8;
+    --color-base-100: #E8E8F0;
+    --color-base-150: #D8D9E3;
+    --color-base-200: #D0D1DB;
+    --color-base-250: #C0C2D0;
+    --color-base-300: #B8BAC8;
+    --color-base-350: #A8ABB8;
+    --color-base-400: #A0A3B8;
+    --color-base-450: #9498AD;
+    --color-base-500: #8B8FA8;
+    --color-base-550: #7E829A;
+    --color-base-600: #6B6F85;
+    --color-base-650: #4A4E63;
+    --color-base-700: #353849;
+    --color-base-750: #2A2D3A;
+    --color-base-800: #1A1D27;
+    --color-base-850: #151821;
+    --color-base-900: #0F1117;
+    --color-base-950: #0A0C12;
+    --color-base-1000: #050608;
+
+    /* --- Success color ramp (blue #3B6B9E based) ---
+       Used for focus rings, selection, links, action buttons */
+    --color-success-50: #EDF3F8;
+    --color-success-100: #D4E2EE;
+    --color-success-150: #BDD2E5;
+    --color-success-200: #A5C1DB;
+    --color-success-250: #8DB0D1;
+    --color-success-300: #6F9BBF;
+    --color-success-350: #5583AE;
+    --color-success-400: #3B6B9E;
+    --color-success-450: #35608E;
+    --color-success-500: #2F557E;
+    --color-success-550: #294A6E;
+    --color-success-600: #233F5E;
+    --color-success-650: #1D344E;
+    --color-success-700: #17293E;
+    --color-success-750: #111E2E;
+    --color-success-800: #0B131E;
+    --color-success-850: #080E16;
+    --color-success-900: #05090E;
+    --color-success-950: #030507;
+
+    /* --- Font Override --- */
+    --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont,
+      'Segoe UI', Roboto, sans-serif;
+
+    /* --- Slightly more rounded corners --- */
+    --style-radius-s: 6px;
+    --style-radius-m: 8px;
+    --style-radius-l: 12px;
+  }
+
+  /* --- Primary Button: crimson accent --- */
+  .btn--style-primary {
+    --bg-color: #E63946;
+    --color: #FFFFFF;
+    --hover-bg: #C62D38;
+    --hover-color: #FFFFFF;
+
+    &.btn--disabled {
+      --bg-color: #353849;
+      --color: #8B8FA8;
+      --hover-bg: #353849;
+      --hover-color: #8B8FA8;
+    }
+  }
+
+  /* --- Login / Create-First-User page layout --- */
+  .template-minimal {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    background: var(--theme-bg);
+
+    /* Faded Pikachu Ball linework background */
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('/images/pikachu-ball.png') center center / 420px no-repeat;
+      filter: invert(1);
+      opacity: 0.035;
+      pointer-events: none;
+    }
+
+    /* Subtle gradient overlay */
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(
+          ellipse at 50% 0%,
+          rgba(59, 107, 158, 0.1) 0%,
+          transparent 60%
+        ),
+        radial-gradient(
+          ellipse at 50% 100%,
+          rgba(230, 57, 70, 0.05) 0%,
+          transparent 50%
+        );
+      pointer-events: none;
+    }
+  }
+
+  /* ============================================
+     CARD / MODAL WRAPPER
+     ============================================ */
+  .template-minimal__wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 440px;
+    width: 100%;
+    background: #151821;
+    border: 1px solid #2A2D3A;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(230, 57, 70, 0.03);
+  }
+
+  /* ============================================
+     LOGO AREA (login page)
+     ============================================ */
+  .login__brand {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  /* ============================================
+     CREATE-FIRST-USER HEADINGS
+     ============================================ */
+  .create-first-user {
+    h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.75rem;
+      color: #F0F0F8;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.375rem;
+    }
+
+    > p {
+      color: #8B8FA8;
+      font-size: 0.875rem;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+    }
+  }
+
+  /* ============================================
+     FORM INTERIOR — Scoped to login/signup pages
+     ============================================ */
+  .template-minimal {
+
+    /* --- Field spacing --- */
+    .field-type {
+      margin-bottom: 1.25rem;
+    }
+
+    .render-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .login-fields {
+      gap: 1.25rem;
+    }
+
+    /* --- Labels --- */
+    .field-label {
+      display: block;
+      padding-bottom: 0.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      font-size: 0.8125rem;
+      color: #A0A3B8;
+      letter-spacing: 0.01em;
+
+      .required {
+        color: #E63946;
+      }
+    }
+
+    /* --- Text / Email / Password Inputs --- */
+    .field-type.text input,
+    .field-type.email input,
+    .field-type.password input,
+    .field-type.confirm-password input {
+      width: 100%;
+      height: 44px;
+      background: #0F1117;
+      border: 1px solid #2A2D3A;
+      border-radius: 8px;
+      padding: 0 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      color: #F0F0F8;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &::placeholder {
+        color: #6B6F85;
+      }
+
+      &:hover {
+        border-color: #353849;
+      }
+
+      &:focus,
+      &:focus-within {
+        border-color: #3B6B9E;
+        box-shadow:
+          inset 0 1px 2px rgba(0, 0, 0, 0.2),
+          0 0 0 3px rgba(59, 107, 158, 0.15);
+        outline: none;
+      }
+    }
+
+    /* --- Select Dropdown (React Select) --- */
+    .rs__control {
+      min-height: 44px;
+      background: #0F1117 !important;
+      border: 1px solid #2A2D3A !important;
+      border-radius: 8px !important;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+      cursor: pointer;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        border-color: #353849 !important;
+      }
+
+      &--is-focused,
+      &--menu-is-open {
+        border-color: #3B6B9E !important;
+        box-shadow:
+          inset 0 1px 2px rgba(0, 0, 0, 0.2),
+          0 0 0 3px rgba(59, 107, 158, 0.15) !important;
+      }
+    }
+
+    .rs__single-value {
+      color: #F0F0F8 !important;
+      font-size: 0.875rem;
+    }
+
+    .rs__placeholder {
+      color: #6B6F85 !important;
+      font-size: 0.875rem;
+    }
+
+    .rs__indicator {
+      color: #8B8FA8 !important;
+      padding: 0 0.75rem;
+
+      &:hover {
+        color: #E63946 !important;
+      }
+    }
+
+    .rs__indicator-separator {
+      display: none;
+    }
+
+    .rs__menu {
+      background: #1A1D27 !important;
+      border: 1px solid #2A2D3A !important;
+      border-radius: 8px !important;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+      overflow: hidden;
+      margin-top: 4px !important;
+    }
+
+    .rs__menu-list {
+      padding: 4px !important;
+    }
+
+    .rs__option {
+      padding: 0.625rem 0.75rem !important;
+      font-size: 0.875rem;
+      border-radius: 6px !important;
+      cursor: pointer;
+      transition: background 0.15s ease;
+
+      &--is-focused {
+        background: rgba(59, 107, 158, 0.15) !important;
+        color: #F0F0F8 !important;
+      }
+
+      &--is-selected {
+        background: #3B6B9E !important;
+        color: #F0F0F8 !important;
+      }
+    }
+
+    .rs__input-container {
+      color: #F0F0F8 !important;
+    }
+
+    .rs__value-container {
+      padding: 0 1rem !important;
+    }
+
+    /* --- Submit Button --- */
+    .form-submit {
+      margin-top: 0.5rem;
+    }
+
+    .form-submit .btn,
+    .btn--style-primary {
+      width: 100%;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #E63946;
+      color: #FFFFFF;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9375rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(230, 57, 70, 0.15);
+
+      &:hover,
+      &:focus {
+        background: #C62D38;
+        color: #FFFFFF;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(230, 57, 70, 0.25);
+      }
+
+      &:active {
+        transform: translateY(0);
+        box-shadow: 0 1px 4px rgba(230, 57, 70, 0.1);
+      }
+    }
+
+    /* --- Login form input wrapper spacing --- */
+    .login__form__inputWrap {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    /* --- Forgot password link --- */
+    .login__form a {
+      display: inline-block;
+      color: #8B8FA8;
+      font-size: 0.8125rem;
+      margin-bottom: 0.5rem;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #E63946;
+      }
+    }
+  }
+
+  /* ============================================
+     ADMIN DASHBOARD LAYOUT
+     ============================================ */
+
+  /* --- Sidebar Nav --- */
+  .nav {
+    background: #0F1117;
+    border-right: 1px solid #2A2D3A;
+  }
+
+  .nav-group__toggle {
+    color: #8B8FA8;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    &:hover,
+    &:focus {
+      color: #E63946;
+    }
+  }
+
+  .nav__link {
+    color: #A0A3B8;
+    transition: color 0.15s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: #F0F0F8;
+    }
+
+    &.active {
+      color: #F0F0F8;
+      font-weight: 600;
+    }
+  }
+
+  .nav__link-indicator {
+    background: #E63946;
+  }
+
+  .nav__controls {
+    border-top: 1px solid #2A2D3A;
+    padding-top: 1rem;
+  }
+
+  /* --- App Header --- */
+  .app-header {
+    background: #0F1117;
+    border-bottom: 1px solid #2A2D3A;
+  }
+
+  /* --- Main content area --- */
+  .template-default__wrap {
+    background: #0F1117;
+  }
+
+  /* --- Dashboard heading --- */
+  .dashboard__wrap {
+    h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+  }
+
+  /* --- Collection cards on dashboard --- */
+  .card {
+    background: #1A1D27;
+    border: 1px solid #2A2D3A;
+    border-radius: 8px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      border-color: #3B6B9E;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+  }
+}

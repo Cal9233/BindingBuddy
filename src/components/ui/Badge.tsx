@@ -4,18 +4,18 @@ interface BadgeProps {
 }
 
 const colorMap: Record<string, string> = {
-  "Best Seller": "bg-poke-gold/15 border-poke-gold/40 text-poke-gold",
-  Limited: "bg-red-500/10 border-red-500/40 text-red-400",
-  New: "bg-poke-blue/10 border-poke-blue/40 text-poke-blue",
+  "Best Seller": "bg-poke-gold/80 border-poke-gold/60 text-white backdrop-blur-md shadow-sm",
+  Limited: "bg-red-500/70 border-red-500/50 text-white backdrop-blur-md shadow-sm",
+  New: "bg-poke-blue/70 border-poke-blue/50 text-white backdrop-blur-md shadow-sm",
 };
 
 export default function Badge({ label, className = "" }: BadgeProps) {
   const colors =
-    colorMap[label] ?? "bg-poke-muted/10 border-poke-muted/30 text-poke-muted";
+    colorMap[label] ?? "bg-poke-muted/60 border-poke-muted/40 text-white backdrop-blur-md shadow-sm";
 
   return (
     <span
-      className={`inline-block border text-[10px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${colors} ${className}`}
+      className={`inline-block border text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full ${colors} ${className}`}
     >
       {label}
     </span>

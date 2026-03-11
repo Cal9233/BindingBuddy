@@ -1,4 +1,5 @@
 import type { CollectionConfig, Access } from "payload";
+import { cookies } from "next/headers";
 
 const isAdmin: Access = ({ req }) => {
   const user = req.user as { role?: string } | null;
@@ -8,6 +9,19 @@ const isAdmin: Access = ({ req }) => {
 export const Users: CollectionConfig = {
   slug: "users",
   auth: true,
+  hooks: {
+    afterLogin: [
+      async () => {
+        // Clear TOTP session cookie on every login so user must re-verify
+        try {
+          const cookieStore = await cookies();
+          cookieStore.delete("totp_verified");
+        } catch {
+          // cookies() may not be available in non-Next.js contexts
+        }
+      },
+    ],
+  },
   admin: {
     useAsTitle: "email",
   },
@@ -28,16 +42,41 @@ export const Users: CollectionConfig = {
       name: "role",
       type: "select",
       required: true,
-      defaultValue: "editor",
+      defaultValue: "admin",
       options: [
         { label: "Admin", value: "admin" },
         { label: "Editor", value: "editor" },
       ],
+      admin: {
+        condition: (data, siblingData, { user }) => {
+          // Hide on create-first-user (no logged-in user yet)
+          return !!user;
+        },
+      },
       access: {
         update: ({ req }) => {
           const user = req.user as { role?: string } | null;
           return user?.role === "admin";
         },
+      },
+    },
+    {
+      name: "totpSecret",
+      type: "text",
+      admin: { hidden: true },
+      access: {
+        read: () => false,
+        update: () => false,
+      },
+    },
+    {
+      name: "totpEnabled",
+      type: "checkbox",
+      defaultValue: false,
+      admin: {
+        readOnly: true,
+        position: "sidebar",
+        description: "Two-factor authentication status",
       },
     },
   ],
