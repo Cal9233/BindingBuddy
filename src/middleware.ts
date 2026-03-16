@@ -4,6 +4,18 @@ import type { NextRequest } from "next/server";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // P27: Server-side TOTP enforcement for /admin routes
+  if (
+    pathname.startsWith("/admin") &&
+    !pathname.startsWith("/mfa-verify") &&
+    !pathname.startsWith("/api/") &&
+    !request.cookies.get("totp_verified")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/mfa-verify";
+    return NextResponse.redirect(url);
+  }
+
   // Store referral cookie — from ?ref= query param OR /ref/[slug] path
   const response = NextResponse.next();
   const queryRef = request.nextUrl.searchParams.get("ref");

@@ -1,9 +1,58 @@
 import { NextRequest } from "next/server";
+import { Ratelimit } from "@upstash/ratelimit";
+import { Redis } from "@upstash/redis";
 
 // ---------------------------------------------------------------------------
-// Shared in-memory rate limiter
-// Keys by userId (authenticated) or falls back to IP.
-// MED-3: Prefer userId over IP — user IDs can't be spoofed.
+// Upstash Redis rate limiting
+// Falls back to no-op limiters when env vars are not configured.
+// ---------------------------------------------------------------------------
+
+const upstashConfigured =
+  !!process.env.UPSTASH_REDIS_REST_URL && !!process.env.UPSTASH_REDIS_REST_TOKEN;
+
+const sharedRedis = upstashConfigured
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL!,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+    })
+  : null;
+
+function createLimiter(
+  tokens: number,
+  windowSeconds: number,
+  prefix: string
+): Ratelimit {
+  if (!sharedRedis) {
+    return {
+      limit: async () => ({
+        success: true,
+        limit: 0,
+        remaining: Infinity,
+        reset: 0,
+        pending: Promise.resolve(),
+      }),
+    } as unknown as Ratelimit;
+  }
+
+  return new Ratelimit({
+    redis: sharedRedis,
+    limiter: Ratelimit.slidingWindow(tokens, `${windowSeconds} s`),
+    prefix,
+  });
+}
+
+/** 10 requests per 60 seconds — checkout routes */
+export const checkoutLimiter = createLimiter(10, 60, "ratelimit:checkout");
+
+/** 5 requests per 15 minutes — TOTP verification */
+export const totpLimiter = createLimiter(5, 900, "ratelimit:totp");
+
+/** 3 requests per 15 minutes — contact form */
+export const contactLimiter = createLimiter(3, 900, "ratelimit:contact");
+
+// ---------------------------------------------------------------------------
+// Legacy in-memory rate limiter (kept for backward compatibility)
+// Used by TOTP and contact routes that haven't migrated yet.
 // ---------------------------------------------------------------------------
 
 const DEFAULT_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
@@ -19,7 +68,6 @@ interface RateLimitConfig {
   maxAttempts?: number;
 }
 
-// Separate stores per namespace so different features don't collide
 const stores = new Map<string, Map<string, RateLimitRecord>>();
 
 function getStore(namespace: string): Map<string, RateLimitRecord> {
@@ -31,10 +79,6 @@ function getStore(namespace: string): Map<string, RateLimitRecord> {
   return store;
 }
 
-/**
- * Build a rate-limit key. Prefers userId (not spoofable) over IP.
- * Falls back to X-Forwarded-For / X-Real-IP only for unauthenticated routes.
- */
 export function getRateLimitKey(
   req: NextRequest,
   userId?: string | null
@@ -47,9 +91,6 @@ export function getRateLimitKey(
   );
 }
 
-/**
- * Check if a key is currently rate-limited.
- */
 export function isRateLimited(
   key: string,
   namespace: string,
@@ -70,9 +111,6 @@ export function isRateLimited(
   return record.count >= maxAttempts;
 }
 
-/**
- * Record a failed attempt against a key.
- */
 export function recordFailedAttempt(
   key: string,
   namespace: string,
@@ -89,9 +127,6 @@ export function recordFailedAttempt(
   }
 }
 
-/**
- * Clear all failed attempts for a key (e.g. on successful auth).
- */
 export function clearFailedAttempts(
   key: string,
   namespace: string

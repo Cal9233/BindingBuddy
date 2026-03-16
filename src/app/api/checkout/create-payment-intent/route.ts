@@ -7,9 +7,23 @@ import {
 } from "@/lib/checkout-validation";
 import { validateStock } from "@/lib/inventory/validate-stock";
 import { stores } from "@/lib/stores";
+import { checkoutLimiter } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    // P12: Rate limit checkout requests
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "anonymous";
+    const { success } = await checkoutLimiter.limit(ip);
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
     // P1: Server-side price verification — prices come from DB, not client

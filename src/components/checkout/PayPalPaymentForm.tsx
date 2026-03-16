@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { PayPalButtons } from "@paypal/react-paypal-js";
 import type { CartItem } from "@/lib/cart-store";
 
 interface PayPalPaymentFormProps {
@@ -27,13 +27,7 @@ export default function PayPalPaymentForm({
   }
 
   return (
-    <PayPalScriptProvider
-      options={{
-        clientId,
-        currency: "USD",
-        intent: "capture",
-      }}
-    >
+    <>
       {error && (
         <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl px-4 py-3 mb-4">
           {error}
@@ -93,6 +87,6 @@ export default function PayPalPaymentForm({
           }}
         />
       </div>
-    </PayPalScriptProvider>
+    </>
   );
 }

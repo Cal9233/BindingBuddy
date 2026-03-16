@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getPayloadClient } from "./payload";
 import type { Product } from "@/types/product";
 
@@ -25,7 +26,12 @@ function resolveImageUrl(img: unknown): string {
   if (typeof img === "string") return img;
   const media = img as Record<string, unknown>;
   const sizes = media.sizes as Record<string, { url?: string }> | undefined;
-  return sizes?.card?.url || (media.url as string) || "/images/placeholder.jpg";
+  return (
+    sizes?.card?.url ||
+    sizes?.thumbnail?.url ||
+    (media.url as string) ||
+    "/images/placeholder.jpg"
+  );
 }
 
 function normalizeProduct(doc: Record<string, unknown>): Product {
@@ -72,22 +78,22 @@ export async function getFeaturedProducts(): Promise<Product[]> {
   return result.docs.map((doc) => normalizeProduct(doc as unknown as Record<string, unknown>));
 }
 
-export async function getProductBySlug(
-  slug: string
-): Promise<Product | undefined> {
-  const payload = await getPayloadClient();
-  const result = await payload.find({
-    collection: "products",
-    where: { slug: { equals: slug } },
-    limit: 1,
-    depth: 1,
-    select: PRODUCT_SELECT,
-  });
-  const doc = result.docs[0];
-  return doc
-    ? normalizeProduct(doc as unknown as Record<string, unknown>)
-    : undefined;
-}
+export const getProductBySlug = cache(
+  async (slug: string): Promise<Product | undefined> => {
+    const payload = await getPayloadClient();
+    const result = await payload.find({
+      collection: "products",
+      where: { slug: { equals: slug } },
+      limit: 1,
+      depth: 1,
+      select: PRODUCT_SELECT,
+    });
+    const doc = result.docs[0];
+    return doc
+      ? normalizeProduct(doc as unknown as Record<string, unknown>)
+      : undefined;
+  }
+);
 
 export async function getProductsByCategory(
   category: Product["category"]

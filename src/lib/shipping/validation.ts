@@ -29,7 +29,9 @@ export const shippingAddressSchema = z.object({
     .max(20, "Postal code is too long")
     .trim()
     .regex(/^[A-Za-z0-9\s\-]+$/, "Invalid postal code format"),
-  country: z.string().min(1, "Country is required").max(2),
+  country: z.enum(["US", "CA", "GB", "AU", "NZ"], {
+    errorMap: () => ({ message: "We only ship to US, CA, GB, AU, and NZ" }),
+  }),
 });
 
 export type ShippingAddress = z.infer<typeof shippingAddressSchema>;

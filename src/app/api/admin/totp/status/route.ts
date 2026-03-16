@@ -8,7 +8,7 @@ import crypto from "crypto";
 // MED-6: Removed console.log that logged userId and cookie values
 // ---------------------------------------------------------------------------
 function validateTotpCookie(cookieValue: string, userId: string): boolean {
-  const secret = process.env.PAYLOAD_SECRET;
+  const secret = process.env.TOTP_COOKIE_SECRET || process.env.PAYLOAD_SECRET;
   if (!secret) return false;
 
   const parts = cookieValue.split(":");

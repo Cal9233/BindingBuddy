@@ -8,13 +8,14 @@ import {
 import { validateStock } from "@/lib/inventory/validate-stock";
 import { stores } from "@/lib/stores";
 import crypto from "crypto";
+import { checkoutLimiter } from "@/lib/rate-limit";
 
 // ---------------------------------------------------------------------------
 // HIGH-2: Sign the server-generated orderId for capture verification
 // ---------------------------------------------------------------------------
 function signOrderId(orderId: string): string {
-  const secret = process.env.PAYLOAD_SECRET;
-  if (!secret) throw new Error("PAYLOAD_SECRET not set");
+  const secret = process.env.PAYPAL_SIGNING_SECRET || process.env.PAYLOAD_SECRET;
+  if (!secret) throw new Error("PAYPAL_SIGNING_SECRET or PAYLOAD_SECRET must be set");
   return crypto
     .createHmac("sha256", secret)
     .update(`paypal_order:${orderId}`)
@@ -23,6 +24,19 @@ function signOrderId(orderId: string): string {
 
 export async function POST(req: NextRequest) {
   try {
+    // P12: Rate limit checkout requests
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "anonymous";
+    const { success } = await checkoutLimiter.limit(ip);
+    if (!success) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
 
     // P1: Server-side price verification — prices come from DB, not client
@@ -119,7 +133,7 @@ export async function POST(req: NextRequest) {
     });
     const pendingOrderB64 = Buffer.from(pendingOrderData).toString("base64");
     const pendingOrderSig = crypto
-      .createHmac("sha256", process.env.PAYLOAD_SECRET!)
+      .createHmac("sha256", process.env.PAYPAL_SIGNING_SECRET || process.env.PAYLOAD_SECRET!)
       .update(`pp_pending:${pendingOrderB64}`)
       .digest("hex");
 

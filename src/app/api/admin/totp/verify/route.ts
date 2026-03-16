@@ -19,8 +19,8 @@ const RATE_LIMIT_NAMESPACE = "totp";
 // HIGH-4: HMAC-based totp_verified cookie scoped to user
 // ---------------------------------------------------------------------------
 function createTotpCookieValue(userId: string): string {
-  const secret = process.env.PAYLOAD_SECRET;
-  if (!secret) throw new Error("PAYLOAD_SECRET is not set");
+  const secret = process.env.TOTP_COOKIE_SECRET || process.env.PAYLOAD_SECRET;
+  if (!secret) throw new Error("TOTP_COOKIE_SECRET or PAYLOAD_SECRET must be set");
   const timestamp = Date.now().toString(36);
   const hmac = crypto
     .createHmac("sha256", secret)

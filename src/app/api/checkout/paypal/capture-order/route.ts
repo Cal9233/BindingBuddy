@@ -13,8 +13,8 @@ import crypto from "crypto";
 const PAYPAL_ORDER_ID_REGEX = /^[A-Z0-9]{17}$/;
 
 function signOrderId(orderId: string): string {
-  const secret = process.env.PAYLOAD_SECRET;
-  if (!secret) throw new Error("PAYLOAD_SECRET not set");
+  const secret = process.env.PAYPAL_SIGNING_SECRET || process.env.PAYLOAD_SECRET;
+  if (!secret) throw new Error("PAYPAL_SIGNING_SECRET or PAYLOAD_SECRET must be set");
   return crypto
     .createHmac("sha256", secret)
     .update(`paypal_order:${orderId}`)
@@ -42,7 +42,7 @@ function decodePendingOrderCookie(
 } | null {
   if (!cookieValue) return null;
 
-  const secret = process.env.PAYLOAD_SECRET;
+  const secret = process.env.PAYPAL_SIGNING_SECRET || process.env.PAYLOAD_SECRET;
   if (!secret) return null;
 
   const dotIdx = cookieValue.lastIndexOf(".");

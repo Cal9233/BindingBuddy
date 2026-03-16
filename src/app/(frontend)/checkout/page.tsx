@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Elements } from "@stripe/react-stripe-js";
 import { useCartStore, useTotalItems, useTotalPrice } from "@/lib/cart-store";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { getStripeClient } from "@/lib/stripe-client";
 import Button from "@/components/ui/Button";
 import OrderSummary from "@/components/checkout/OrderSummary";
@@ -14,6 +15,14 @@ import PaymentMethodSelector, {
 import StripePaymentForm from "@/components/checkout/StripePaymentForm";
 import PayPalPaymentForm from "@/components/checkout/PayPalPaymentForm";
 import StoreReferralPicker from "@/components/checkout/StoreReferralPicker";
+
+const stripePromise = getStripeClient();
+
+const paypalOptions = {
+  clientId: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "",
+  currency: "USD" as const,
+  intent: "capture" as const,
+};
 
 export default function CheckoutPage() {
   return (
@@ -177,7 +186,14 @@ function CheckoutContent() {
     );
   }
 
-  return (
+  const paypalWrapper = (children: React.ReactNode) =>
+    paypalOptions.clientId ? (
+      <PayPalScriptProvider options={paypalOptions}>{children}</PayPalScriptProvider>
+    ) : (
+      <>{children}</>
+    );
+
+  return paypalWrapper(
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
       <h1 className="font-display text-3xl font-bold text-poke-text mb-10">
         Checkout
@@ -207,7 +223,7 @@ function CheckoutContent() {
           <div className="bg-poke-card border border-poke-border rounded-2xl p-6">
             {clientSecret ? (
               <Elements
-                stripe={getStripeClient()}
+                stripe={stripePromise}
                 options={{
                   clientSecret,
                   appearance: {

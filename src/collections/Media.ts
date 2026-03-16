@@ -8,7 +8,7 @@ const isAdmin: Access = ({ req }) => {
 export const Media: CollectionConfig = {
   slug: "media",
   upload: {
-    mimeTypes: ["image/*"],
+    mimeTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
     imageSizes: [
       { name: "thumbnail", width: 160, height: 160, position: "centre" },
       { name: "card", width: 480, height: 480, position: "centre" },

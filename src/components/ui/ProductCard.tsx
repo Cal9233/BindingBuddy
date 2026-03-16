@@ -1,3 +1,4 @@
+import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Product } from "@/types/product";
@@ -17,7 +18,7 @@ const categoryLabel: Record<Product["category"], string> = {
   "design-collection": "Design Collection",
 };
 
-export default function ProductCard({ product }: Props) {
+function ProductCard({ product }: Props) {
   return (
     <HoloCard className="group flex flex-col bg-poke-card rounded-2xl overflow-hidden border border-poke-border hover:border-poke-blue/40 transition-all duration-300 hover:shadow-xl hover:shadow-poke-blue/10">
       <Link
@@ -73,3 +74,5 @@ export default function ProductCard({ product }: Props) {
     </HoloCard>
   );
 }
+
+export default memo(ProductCard);
