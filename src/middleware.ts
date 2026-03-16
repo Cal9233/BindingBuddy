@@ -5,9 +5,13 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // P27: Server-side TOTP enforcement for /admin routes
+  // Simple cookie-presence check — no DB hits in middleware.
+  // Exempt: /mfa-verify (MFA verification page), /api/admin/totp/* (TOTP API),
+  //         static assets (handled by matcher config below)
   if (
     pathname.startsWith("/admin") &&
     !pathname.startsWith("/mfa-verify") &&
+    !pathname.startsWith("/api/admin/totp") &&
     !pathname.startsWith("/api/") &&
     !request.cookies.get("totp_verified")
   ) {

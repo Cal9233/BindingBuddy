@@ -30,7 +30,7 @@ export const shippingAddressSchema = z.object({
     .trim()
     .regex(/^[A-Za-z0-9\s\-]+$/, "Invalid postal code format"),
   country: z.enum(["US", "CA", "GB", "AU", "NZ"], {
-    errorMap: () => ({ message: "We only ship to US, CA, GB, AU, and NZ" }),
+    message: "We only ship to US, CA, GB, AU, and NZ",
   }),
 });
 

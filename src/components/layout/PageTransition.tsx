@@ -1,8 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 
-const MotionDiv = motion.div;
+const MotionDiv = dynamic(
+  () => import("framer-motion").then((mod) => {
+    const Component = mod.motion.div;
+    return { default: Component };
+  }),
+  { ssr: false }
+);
 
 interface Props {
   children: React.ReactNode;

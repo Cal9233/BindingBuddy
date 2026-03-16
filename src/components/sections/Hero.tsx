@@ -1,9 +1,15 @@
 "use client";
 
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Button from "@/components/ui/Button";
 
-const MotionDiv = motion.div;
+const MotionDiv = dynamic(
+  () => import("framer-motion").then((mod) => {
+    const Component = mod.motion.div;
+    return { default: Component };
+  }),
+  { ssr: false }
+);
 
 export default function Hero() {
   return (

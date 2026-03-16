@@ -186,7 +186,7 @@ export async function POST(req: NextRequest) {
           city: "",
           state: "",
           postalCode: "",
-          country: "US",
+          country: "US" as const,
         };
 
     try {
