@@ -91,22 +91,9 @@ async function validateTotpCookieEdge(cookieValue: string): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // P27: Server-side TOTP enforcement for /admin routes
-  // Validates HMAC signature + expiry on totp_verified cookie — no DB hits.
-  // Exempt: API routes (have their own auth), static assets (matcher config below)
-  if (
-    pathname.startsWith("/admin") &&
-    !pathname.startsWith("/api/")
-  ) {
-    const totpCookie = request.cookies.get("totp_verified")?.value;
-    // R7: Missing, empty, or invalid cookies all redirect to MFA verification
-    const isValid = totpCookie ? await validateTotpCookieEdge(totpCookie) : false;
-    if (!isValid) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/mfa-verify";
-      return NextResponse.redirect(url);
-    }
-  }
+  // MFA enforcement is handled entirely by TOTPProvider (admin.components.providers).
+  // It covers all cases: not logged in, TOTP not enabled, needs verification, already verified.
+  // No middleware redirect needed — avoids redirect loops for unauthenticated users.
 
   // --- CSP injection (skip admin routes — handled by static header in next.config.ts) ---
   const requestHeaders = new Headers(request.headers);
