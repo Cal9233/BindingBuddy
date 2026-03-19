@@ -51,7 +51,7 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} Binding Buddy. All rights
             reserved.
           </p>
-          <p className="text-poke-muted/60 text-xs">
+          <p className="text-poke-muted text-xs">
             Not affiliated with The Pok&eacute;mon Company or Nintendo.
           </p>
         </div>

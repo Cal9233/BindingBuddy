@@ -18,11 +18,11 @@ vi.mock("zustand/middleware", () => ({
 }));
 
 // Import AFTER mocking middleware
-import { useCartStore } from "@/lib/cart-store";
+import { useCartStore, type CartItem } from "@/lib/cart-store";
 
 const { getState } = useCartStore;
 
-const makeItem = (overrides: Partial<Parameters<typeof getState>["0"] extends never ? never : ReturnType<typeof getState>["items"][0]> = {}) => ({
+const makeItem = (overrides: Partial<CartItem> = {}) => ({
   productId: "prod-1",
   name: "Test Product",
   price: 1000,

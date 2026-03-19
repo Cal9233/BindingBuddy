@@ -8,6 +8,7 @@ import { default as default_a30d090130e810fa5fefe9ac725625f4 } from '../../../..
 import { default as default_788fbffef1309cbe213c18a9b228fd68 } from '../../../../src/components/admin/BeforeDashboard'
 import { default as default_a98b774adea8aca98f799ac1c0a96329 } from '../../../../src/components/admin/BeforeLogin'
 import { default as default_c099d3fdf40cb60eb18ef32512a4824e } from '../../../../src/components/admin/TOTPProvider'
+import { VercelBlobClientUploadHandler as VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e } from '@payloadcms/storage-vercel-blob/client'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 export const importMap = {
@@ -21,5 +22,6 @@ export const importMap = {
   "/src/components/admin/BeforeDashboard#default": default_788fbffef1309cbe213c18a9b228fd68,
   "/src/components/admin/BeforeLogin#default": default_a98b774adea8aca98f799ac1c0a96329,
   "/src/components/admin/TOTPProvider#default": default_c099d3fdf40cb60eb18ef32512a4824e,
+  "@payloadcms/storage-vercel-blob/client#VercelBlobClientUploadHandler": VercelBlobClientUploadHandler_16c82c5e25f430251a3e3ba57219ff4e,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

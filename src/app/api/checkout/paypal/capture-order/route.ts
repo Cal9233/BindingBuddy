@@ -149,10 +149,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Clear the one-time-use cookies
-    cookieStore.delete("pp_order_sig");
-    cookieStore.delete("pp_pending_order");
-
     // Capture the PayPal order
     const accessToken = await getPayPalAccessToken();
     const base = getPayPalApiBase();
@@ -260,6 +256,10 @@ export async function POST(req: NextRequest) {
       sendOrderConfirmation(order).catch((err) => {
         console.error("[paypal/capture] Failed to send confirmation email:", err);
       });
+
+      // Clear the one-time-use cookies only after order is successfully created
+      cookieStore.delete("pp_order_sig");
+      cookieStore.delete("pp_pending_order");
 
       return NextResponse.json({
         status: data.status,

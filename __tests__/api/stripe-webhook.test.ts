@@ -34,6 +34,18 @@ vi.mock("payload", () => ({
 }));
 
 vi.mock("@/lib/orders/create-order", () => ({
+  createOrder: vi.fn().mockResolvedValue({
+    id: "order-fallback",
+    customerEmail: "stripe+pi_test_123@checkout.pending",
+    items: [],
+    total: 4999,
+    shippingAddress: {},
+    paymentMethod: "stripe",
+    paymentId: "pi_test_123",
+    status: "pending",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }),
   confirmOrder: vi.fn().mockResolvedValue({ id: "order-1", status: "confirmed" }),
 }));
 
@@ -203,5 +215,64 @@ describe("POST /api/webhooks/stripe — unhandled event types", () => {
     expect(res.status).toBe(200);
     const json = await res.json();
     expect(json.received).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// T3: Webhook fallback order creation when no order exists
+// ---------------------------------------------------------------------------
+
+describe("POST /api/webhooks/stripe — T3 fallback order creation", () => {
+  it("calls createOrder with items:[] and PI metadata when no order is found", async () => {
+    const { createOrder } = await import("@/lib/orders/create-order");
+
+    mockConstructEvent.mockReturnValue({
+      type: "payment_intent.succeeded",
+      data: {
+        object: {
+          id: "pi_ghost_1234567890",
+          amount: 4999,
+          metadata: { store_ref: "organic" },
+          receipt_email: "ghost@example.com",
+        },
+      },
+    });
+    mockPayloadFind.mockResolvedValue({ docs: [] });
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+
+    // The webhook creates a fallback order when no matching order is found
+    expect(createOrder).toHaveBeenCalledWith(
+      expect.objectContaining({
+        items: [],
+        paymentMethod: "stripe",
+        total: 4999,
+      })
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// T4: Webhook redelivery idempotency — confirmed order skips processing
+// ---------------------------------------------------------------------------
+
+describe("POST /api/webhooks/stripe — T4 redelivery idempotency", () => {
+  it("does not call confirmOrder or deductStock when order is already confirmed", async () => {
+    const { confirmOrder } = await import("@/lib/orders/create-order");
+    const { deductStock } = await import("@/lib/inventory/deduct-stock");
+
+    mockConstructEvent.mockReturnValue({
+      type: "payment_intent.succeeded",
+      data: { object: { id: "pi_test_123" } },
+    });
+    mockPayloadFind.mockResolvedValue({
+      docs: [{ ...pendingOrderDoc, status: "confirmed" }],
+    });
+
+    const res = await POST(makeRequest());
+    expect(res.status).toBe(200);
+    expect(confirmOrder).not.toHaveBeenCalled();
+    expect(deductStock).not.toHaveBeenCalled();
   });
 });

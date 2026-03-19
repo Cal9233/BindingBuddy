@@ -22,7 +22,7 @@ export const Orders: CollectionConfig = {
   },
   timestamps: true,
   indexes: [
-    { fields: ["paymentId"] },
+    { fields: ["paymentId"], unique: true },
     { fields: ["stripePaymentIntentId"] },
     { fields: ["paypalOrderId"] },
     { fields: ["status"] },

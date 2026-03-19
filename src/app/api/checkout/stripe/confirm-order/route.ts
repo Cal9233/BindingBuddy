@@ -63,7 +63,72 @@ export async function POST(req: NextRequest) {
       const existingOrder = existing.docs[0] as unknown as {
         id: string | number;
         status: string;
+        items: unknown;
       };
+
+      // If the webhook already created this order with empty items (fallback),
+      // backfill it with the real cart data from the client.
+      const existingItems = existingOrder.items;
+      const isEmpty =
+        !existingItems ||
+        (Array.isArray(existingItems) && existingItems.length === 0);
+
+      if (isEmpty) {
+        // Validate shipping address once before the update
+        const backfillShippingResult = validateShippingAddress(shippingAddress);
+        const backfillAddress = backfillShippingResult.success
+          ? backfillShippingResult.data
+          : undefined;
+
+        await payload.update({
+          collection: "orders",
+          id: String(existingOrder.id),
+          overrideAccess: true,
+          data: {
+            items: items.map(
+              (i: {
+                productId: string;
+                name: string;
+                price: number;
+                quantity: number;
+                variant?: string;
+              }) => ({
+                productId: i.productId,
+                name: i.name,
+                price: i.price,
+                quantity: i.quantity,
+                variant: i.variant,
+              })
+            ),
+            customerEmail:
+              typeof customerEmail === "string" && customerEmail.length > 0
+                ? customerEmail
+                : undefined,
+            shippingAddress: backfillAddress,
+          },
+        });
+
+        // Deduct stock for the backfilled order — fire and forget
+        deductStock(
+          items.map(
+            (i: { productId: string; quantity: number; variant?: string }) => ({
+              productId: i.productId,
+              quantity: i.quantity,
+              variantLabel: i.variant,
+            })
+          )
+        ).catch((err) => {
+          console.error(
+            "[stripe/confirm] Failed to deduct stock on backfill:",
+            err
+          );
+        });
+
+        console.info(
+          `[stripe/confirm] Backfilled fallback order ${existingOrder.id} with cart items`
+        );
+      }
+
       return NextResponse.json({
         status: "COMPLETED",
         orderId: String(existingOrder.id),
