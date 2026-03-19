@@ -2,6 +2,19 @@ import { withPayload } from "@payloadcms/next/withPayload";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    // Prefer AVIF (smaller) with WebP fallback for browsers that don't support it.
+    formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      // Payload CMS media served from the same origin in production.
+      // Adjust hostname if Payload media is hosted on a separate domain.
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+    ],
+  },
+
   // WSL2 file-watcher fix: the inotify API is unreliable across the Windows
   // filesystem boundary (/mnt/c/...). Enabling polling prevents the
   // "Unable to add filesystem: illegal path" dev-server warning and ensures

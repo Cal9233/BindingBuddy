@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTotalItems } from "@/lib/cart-store";
 
 const navLinks = [
@@ -15,6 +17,7 @@ const navLinks = [
 export default function Navbar() {
   const totalItems = useTotalItems();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-poke-dark/90 backdrop-blur border-b border-poke-border shadow-lg shadow-black/40">
@@ -22,11 +25,11 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/images/logo.png"
+            src="/logo.webp"
             alt="Binding Buddy"
-            width={36}
-            height={36}
-            className="w-9 h-9"
+            width={40}
+            height={40}
+            className="w-10 h-10"
           />
           <span className="font-display font-bold text-xl text-poke-text leading-tight tracking-tight">
             Binding<span className="text-poke-yellow">Buddy</span>
@@ -39,7 +42,11 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="hover:text-poke-text transition-colors"
+              className={`transition-colors ${
+                pathname === link.href
+                  ? "text-poke-text"
+                  : "hover:text-poke-text"
+              }`}
             >
               {link.label}
             </Link>
@@ -68,7 +75,7 @@ export default function Navbar() {
               />
             </svg>
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 bg-poke-yellow text-white text-xs font-black rounded-full font-display">
+              <span className="absolute -top-2 -right-2 flex items-center justify-center w-5 h-5 bg-poke-yellow text-poke-dark text-xs font-black rounded-full font-display">
                 {totalItems > 99 ? "99+" : totalItems}
               </span>
             )}
@@ -79,6 +86,7 @@ export default function Navbar() {
             className="md:hidden text-poke-muted hover:text-poke-text"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
+            aria-expanded={mobileOpen}
           >
             <svg
               className="w-6 h-6"
@@ -106,20 +114,33 @@ export default function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      {mobileOpen && (
-        <nav className="md:hidden border-t border-poke-border bg-poke-dark px-4 pb-4 pt-2 space-y-1">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="block py-2 text-poke-muted hover:text-poke-text transition-colors text-sm font-medium"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-      )}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.nav
+            key="mobile-menu"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="md:hidden border-t border-poke-border bg-poke-dark px-4 pb-4 pt-2 space-y-1"
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className={`block py-2 text-sm font-medium transition-colors ${
+                  pathname === link.href
+                    ? "text-poke-text"
+                    : "text-poke-muted hover:text-poke-text"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

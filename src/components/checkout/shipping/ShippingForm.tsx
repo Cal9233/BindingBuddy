@@ -163,6 +163,7 @@ export default function ShippingForm({
               {...register("postalCode")}
               type="text"
               autoComplete="postal-code"
+              inputMode="numeric"
               placeholder="85001"
               className={fieldClass(!!errors.postalCode)}
             />

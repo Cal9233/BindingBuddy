@@ -112,7 +112,7 @@ export default function AboutPage() {
 
       {/* Process */}
       <div className="bg-poke-card border border-poke-border rounded-2xl p-8 mb-16">
-        <h2 className="font-display text-2xl font-bold text-poke-text tracking-tight mb-4">
+        <h2 className="font-display text-3xl font-bold text-poke-text tracking-tight mb-4">
           The Process
         </h2>
         <div className="space-y-4 text-poke-muted text-sm leading-relaxed">
@@ -136,7 +136,7 @@ export default function AboutPage() {
 
       {/* CTA */}
       <div className="text-center">
-        <h2 className="font-display text-xl font-bold text-poke-text mb-4">
+        <h2 className="font-display text-2xl font-bold text-poke-text mb-4">
           Ready to see the collection?
         </h2>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

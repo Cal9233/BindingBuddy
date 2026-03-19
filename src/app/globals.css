@@ -9,6 +9,15 @@ body {
   color: #f0f0f8;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+*:focus-visible {
+  outline: 2px solid #3B6B9E;
+  outline-offset: 2px;
+}
+
 * {
   box-sizing: border-box;
 }

@@ -90,7 +90,7 @@ export default async function ProductPage({ params }: Props) {
                 {categoryLabel[product.category] ?? product.category}
               </span>
               {product.badge && <Badge label={product.badge} />}
-              <span className="bg-poke-blue/20 border border-poke-blue/40 text-poke-blue text-[11px] font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full">
+              <span className="bg-poke-blue/20 border border-poke-blue/40 text-poke-blue text-xs font-bold uppercase tracking-widest px-2.5 py-0.5 rounded-full">
                 xTool Laser
               </span>
             </div>
@@ -189,7 +189,7 @@ export default async function ProductPage({ params }: Props) {
       {/* Related products */}
       {related.length > 0 && (
         <section className="mt-20">
-          <h2 className="font-display text-xl font-bold text-poke-text tracking-tight mb-6">
+          <h2 className="font-display text-2xl font-bold text-poke-text tracking-tight mb-6">
             You Might Also Like
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

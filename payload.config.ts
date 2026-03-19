@@ -4,6 +4,7 @@ import { buildConfig } from "payload";
 import { mongooseAdapter } from "@payloadcms/db-mongodb";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import sharp from "sharp";
+import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import { Users } from "./src/collections/Users";
 import { Media } from "./src/collections/Media";
 import { Products } from "./src/collections/Products";
@@ -27,6 +28,15 @@ export default buildConfig({
   editor: lexicalEditor(),
   sharp,
   collections: [Users, Media, Products, Orders, WeeklyReports],
+  plugins: [
+    vercelBlobStorage({
+      enabled: true,
+      collections: {
+        media: true,
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN || "",
+    }),
+  ],
   jobs: {
     tasks: [
       {

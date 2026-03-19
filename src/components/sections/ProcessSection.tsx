@@ -69,7 +69,7 @@ export default function ProcessSection() {
     <section className="bg-poke-card border-y border-poke-border py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-12">
-          <h2 className="font-display text-2xl font-bold text-poke-text tracking-tight mb-3">
+          <h2 className="font-display text-3xl font-bold text-poke-text tracking-tight mb-3">
             How It Works
           </h2>
           <p className="text-poke-muted text-sm max-w-md mx-auto">

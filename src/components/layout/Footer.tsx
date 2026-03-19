@@ -16,15 +16,15 @@ export default function Footer() {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <Image
-                src="/images/logo.png"
+                src="/logo.webp"
                 alt="Binding Buddy"
                 width={28}
                 height={28}
                 className="w-7 h-7"
               />
               <span className="font-display font-bold text-lg">
-                <span className="text-poke-yellow">Binding</span>
-                <span className="text-poke-text">Buddy</span>
+                <span className="text-poke-text">Binding</span>
+                <span className="text-poke-yellow">Buddy</span>
               </span>
             </div>
             <p className="text-poke-muted text-xs mt-1 max-w-xs">
@@ -47,11 +47,11 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 pt-6 border-t border-poke-border flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-poke-muted/50 text-xs">
+          <p className="text-poke-muted text-xs">
             &copy; {new Date().getFullYear()} Binding Buddy. All rights
             reserved.
           </p>
-          <p className="text-poke-muted/40 text-xs">
+          <p className="text-poke-muted/60 text-xs">
             Not affiliated with The Pok&eacute;mon Company or Nintendo.
           </p>
         </div>

@@ -27,7 +27,7 @@ export default async function HomePage() {
       >
         <div className="flex items-center gap-3 mb-8">
           <span className="w-8 h-1 bg-poke-gold rounded-full" />
-          <h2 className="font-display text-2xl font-bold text-poke-text tracking-tight">
+          <h2 className="font-display text-3xl font-bold text-poke-text tracking-tight">
             All Products
           </h2>
         </div>

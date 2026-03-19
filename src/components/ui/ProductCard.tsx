@@ -9,6 +9,7 @@ import HoloCard from "./HoloCard";
 
 interface Props {
   product: Product;
+  priority?: boolean;
 }
 
 const categoryLabel: Record<Product["category"], string> = {
@@ -18,7 +19,7 @@ const categoryLabel: Record<Product["category"], string> = {
   "design-collection": "Design Collection",
 };
 
-function ProductCard({ product }: Props) {
+function ProductCard({ product, priority = false }: Props) {
   return (
     <HoloCard className="group flex flex-col bg-poke-card rounded-2xl overflow-hidden border border-poke-border hover:border-poke-blue/40 transition-all duration-300 hover:shadow-xl hover:shadow-poke-blue/10">
       <Link
@@ -32,6 +33,8 @@ function ProductCard({ product }: Props) {
             width={400}
             height={300}
             className="object-cover w-full h-full"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={priority}
           />
           {product.badge && (
             <div className="absolute top-3 left-3">
@@ -48,13 +51,13 @@ function ProductCard({ product }: Props) {
               {categoryLabel[product.category]}
             </span>
             {product.pokemon && (
-              <span className="text-xs text-poke-blue font-semibold">
+              <span className="text-xs text-poke-gold font-semibold">
                 · {product.pokemon}
               </span>
             )}
           </div>
           <Link href={`/products/${product.slug}`}>
-            <h3 className="font-display text-poke-text font-bold text-base mt-1.5 leading-snug group-hover:text-poke-yellow transition-colors line-clamp-2">
+            <h3 className="font-display text-poke-text font-bold text-lg mt-1.5 leading-snug group-hover:text-poke-yellow transition-colors line-clamp-2">
               {product.name}
             </h3>
           </Link>

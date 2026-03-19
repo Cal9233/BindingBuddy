@@ -96,11 +96,26 @@ export async function POST(req: NextRequest) {
     const accessToken = await getPayPalAccessToken();
     const base = getPayPalApiBase();
 
+    // Deterministic request ID derived from cart contents.
+    // PayPal stores these for 45 days, preventing duplicate order creation on retry.
+    const sortedItems = [...items].sort((a, b) =>
+      a.productId.localeCompare(b.productId)
+    );
+    const cartStr = sortedItems
+      .map((i) => `${i.productId}:${i.quantity}:${i.variant ?? ""}`)
+      .join("|");
+    let cartHashVal = 0;
+    for (let i = 0; i < cartStr.length; i++) {
+      cartHashVal = ((cartHashVal << 5) - cartHashVal + cartStr.charCodeAt(i)) | 0;
+    }
+    const requestId = `pp_${Math.abs(cartHashVal).toString(36)}_${totalCents}`;
+
     const res = await fetch(`${base}/v2/checkout/orders`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
+        "PayPal-Request-Id": requestId,
       },
       body: JSON.stringify({
         intent: "CAPTURE",

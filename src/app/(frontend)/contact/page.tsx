@@ -16,7 +16,7 @@ const contactSchema = z.object({
 type ContactForm = z.infer<typeof contactSchema>;
 
 const inputClass =
-  "w-full bg-white/5 border border-poke-border rounded-xl px-4 py-3 text-poke-text placeholder-poke-muted/40 focus:outline-none focus:border-poke-blue/50 transition-colors text-sm";
+  "w-full bg-white/5 border border-poke-border rounded-xl px-4 py-3 text-poke-text placeholder-poke-muted/60 focus:outline-none focus:border-poke-blue/50 transition-colors text-sm";
 
 const labelClass =
   "block text-poke-muted text-xs font-semibold uppercase tracking-wider mb-1.5";

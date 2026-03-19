@@ -23,7 +23,7 @@ export default function Testimonials() {
   return (
     <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="text-center mb-10">
-        <h2 className="font-display text-2xl font-bold text-poke-text tracking-tight mb-3">
+        <h2 className="font-display text-3xl font-bold text-poke-text tracking-tight mb-3">
           What Collectors Say
         </h2>
       </div>

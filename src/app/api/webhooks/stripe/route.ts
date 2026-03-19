@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { getPayloadClient } from "@/lib/payload";
-import { confirmOrder } from "@/lib/orders/create-order";
+import { createOrder, confirmOrder } from "@/lib/orders/create-order";
 import { sendOrderConfirmation } from "@/lib/email/send-order-confirmation";
 import { deductStock } from "@/lib/inventory/deduct-stock";
+import { stores } from "@/lib/stores";
 import type { Order } from "@/lib/orders/types";
 import type { StockItem } from "@/lib/inventory/types";
 
@@ -105,52 +106,101 @@ async function handlePaymentSucceeded(
       limit: 1,
     });
 
+    let confirmedOrder: Order;
+    let orderId: string;
+
     if (!result.docs || result.docs.length === 0) {
+      // ---------------------------------------------------------------------------
+      // FALLBACK PATH: No order exists yet — the client-side confirm-order call
+      // either failed or never fired (tab closed, network error, 3DS redirect, etc).
+      // Reconstruct the order from PaymentIntent metadata and amount.
+      // ---------------------------------------------------------------------------
       console.warn(
-        `[stripe-webhook] No order found for paymentIntent ${paymentId}`
+        `[stripe-webhook] No order found for paymentIntent ${paymentId} — creating fallback order`
       );
-      return;
-    }
 
-    const orderDoc = result.docs[0] as unknown as PayloadOrderDoc;
+      // Resolve store ref from PI metadata
+      const rawRef =
+        typeof paymentIntent.metadata?.store_ref === "string"
+          ? paymentIntent.metadata.store_ref
+          : "organic";
+      const storeRef = stores[rawRef] ? rawRef : "organic";
 
-    // Idempotency: skip if already confirmed or beyond
-    if (orderDoc.status !== "pending") {
+      // Construct a minimal order from what Stripe knows.
+      // Items are not available in PI metadata — record a sentinel so admins know
+      // this order needs manual review.
+      const fallbackEmail =
+        paymentIntent.receipt_email ??
+        `stripe+${paymentId}@checkout.pending`;
+
+      const fallbackOrder = await createOrder({
+        customerEmail: fallbackEmail,
+        items: [],
+        total: paymentIntent.amount,
+        shippingAddress: {
+          fullName: "",
+          line1: "",
+          city: "",
+          state: "",
+          postalCode: "",
+          country: "US",
+        },
+        paymentMethod: "stripe",
+        paymentId: paymentId,
+        storeRef,
+      });
+
+      orderId = fallbackOrder.id;
+
+      // Immediately confirm the fallback order (payment already succeeded)
+      confirmedOrder = await confirmOrder(orderId);
+
+      console.warn(
+        `[stripe-webhook] Fallback order ${orderId} created and confirmed for payment ${paymentId}. ` +
+          `Items are empty — manual reconciliation may be required.`
+      );
+    } else {
+      const orderDoc = result.docs[0] as unknown as PayloadOrderDoc;
+      orderId = String(orderDoc.id);
+
+      // Idempotency: skip if already confirmed or beyond
+      if (orderDoc.status !== "pending") {
+        console.info(
+          `[stripe-webhook] Order ${orderId} already ${orderDoc.status}, skipping`
+        );
+        return;
+      }
+
+      // 1. Confirm the order
+      confirmedOrder = await confirmOrder(orderId);
+
+      // 2. Deduct stock
+      const items = orderDoc.items as Array<{
+        productId: string;
+        quantity: number;
+        variant?: string;
+      }>;
+      const stockItems: StockItem[] = items.map((item) => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        variantLabel: item.variant,
+      }));
+      await deductStock(stockItems);
+
       console.info(
-        `[stripe-webhook] Order ${orderDoc.id} already ${orderDoc.status}, skipping`
+        `[stripe-webhook] Order ${orderId} confirmed for payment ${paymentId}`
       );
-      return;
     }
 
-    // 1. Confirm the order
-    const confirmedOrder = await confirmOrder(String(orderDoc.id));
-
-    // 2. Deduct stock
-    const items = orderDoc.items as Array<{
-      productId: string;
-      quantity: number;
-      variant?: string;
-    }>;
-    const stockItems: StockItem[] = items.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      variantLabel: item.variant,
-    }));
-    await deductStock(stockItems);
-
-    // 3. Send confirmation email (best-effort — don't fail the webhook)
+    // Send confirmation email (best-effort — don't fail the webhook)
     try {
       await sendOrderConfirmation(confirmedOrder as Order);
     } catch (emailErr) {
       console.error(
-        `[stripe-webhook] Email failed for order ${orderDoc.id}:`,
+        `[stripe-webhook] Email failed for order ${orderId}:`,
         emailErr
       );
     }
-
-    console.info(
-      `[stripe-webhook] Order ${orderDoc.id} confirmed for payment ${paymentId}`
-    );
   } catch (err) {
     console.error(
       `[stripe-webhook] Error processing payment_intent.succeeded for ${paymentId}:`,

@@ -17,6 +17,8 @@ import StoreReferralPicker from "@/components/checkout/StoreReferralPicker";
 import ShippingForm, {
   type ShippingFormResult,
 } from "@/components/checkout/shipping/ShippingForm";
+import { CheckoutProgress } from "@/components/checkout/CheckoutProgress";
+import { TrustBadges } from "@/components/checkout/TrustBadges";
 import type { ShippingAddress } from "@/lib/shipping/validation";
 
 // Module-level constant — Stripe client is created once and reused across
@@ -193,13 +195,18 @@ function CheckoutContent() {
     );
   }
 
+  // Progress step: 1 = Shipping, 2 = Payment (address filled)
+  const currentStep = shippingAddress && customerEmail ? 2 : 1;
+
   // PayPalScriptProvider is hoisted to checkout/layout.tsx (P15) so the
   // SDK persists across tab switches without re-initializing.
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
-      <h1 className="font-display text-3xl font-bold text-poke-text mb-10">
+      <h1 className="font-display text-3xl font-bold text-poke-text mb-4">
         Checkout
       </h1>
+
+      <CheckoutProgress currentStep={currentStep} />
 
       <div className="space-y-6">
         <OrderSummary
@@ -310,6 +317,8 @@ function CheckoutContent() {
                 storeRef={manualStoreRef}
               />
             )}
+
+            <TrustBadges />
           </>
         )}
 

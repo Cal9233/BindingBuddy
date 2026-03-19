@@ -88,7 +88,7 @@ export default function CategoryGrid() {
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
       <div className="flex items-center gap-3 mb-8">
         <span className="w-8 h-1 bg-poke-blue rounded-full" />
-        <h2 className="font-display text-2xl font-bold text-poke-text tracking-tight">
+        <h2 className="font-display text-3xl font-bold text-poke-text tracking-tight">
           Browse by Category
         </h2>
       </div>

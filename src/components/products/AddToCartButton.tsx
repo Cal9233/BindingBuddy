@@ -32,7 +32,7 @@ export default function AddToCartButton({ product, compact = false }: Props) {
         className={`font-display flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-bold transition-all duration-200 ${
           added
             ? "bg-green-500 text-white"
-            : "bg-poke-yellow text-white hover:opacity-90"
+            : "bg-poke-yellow text-poke-dark hover:opacity-90"
         }`}
       >
         {added ? (
@@ -80,7 +80,7 @@ export default function AddToCartButton({ product, compact = false }: Props) {
       className={`font-display w-full py-3 px-6 rounded-xl font-bold text-base transition-all duration-200 ${
         added
           ? "bg-green-500 text-white"
-          : "bg-poke-yellow text-white hover:opacity-90 active:scale-95"
+          : "bg-poke-yellow text-poke-dark hover:opacity-90 active:scale-95"
       }`}
     >
       {added ? "Added to Cart!" : "Add to Cart"}
