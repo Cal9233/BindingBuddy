@@ -4,6 +4,7 @@ import { getStripe } from "@/lib/stripe";
 import {
   validateAndPriceCartItems,
   calculateTotal,
+  ValidationError,
 } from "@/lib/checkout-validation";
 import { validateStock } from "@/lib/inventory/validate-stock";
 import { stores } from "@/lib/stores";
@@ -110,13 +111,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : "";
 
-    // Surface stock/validation errors to the client instead of generic message
-    if (
-      message.includes("out of stock") ||
-      message.includes("Cart is empty") ||
-      message.includes("Too many items") ||
-      message.includes("Product not found")
-    ) {
+    if (err instanceof ValidationError) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
 

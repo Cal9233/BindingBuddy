@@ -4,6 +4,7 @@ import { getPayPalApiBase, getPayPalAccessToken } from "@/lib/paypal";
 import {
   validateAndPriceCartItems,
   calculateTotal,
+  ValidationError,
 } from "@/lib/checkout-validation";
 import { validateStock } from "@/lib/inventory/validate-stock";
 import { stores } from "@/lib/stores";
@@ -182,6 +183,11 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ orderId: order.id });
   } catch (err) {
+    if (err instanceof ValidationError) {
+      const message = err instanceof Error ? err.message : "";
+      return NextResponse.json({ error: message }, { status: 400 });
+    }
+
     console.error("[paypal/create-order] Unhandled error:", err);
     return NextResponse.json(
       { error: "Payment processing failed" },

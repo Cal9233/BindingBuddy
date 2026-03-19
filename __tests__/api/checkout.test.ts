@@ -163,17 +163,14 @@ describe("POST /api/checkout/create-payment-intent — validation", () => {
     expect(res.status).toBe(400);
   });
 
-  it("still rejects items with price 0 at validation layer", async () => {
-    // price: 0 is caught by validateCartItems format check, but the error
-    // doesn't match surfaced patterns in the route's catch — returns 500
+  it("returns 400 when an item has price 0", async () => {
     const res = await POST(makeRequest({ items: [validItem({ price: 0 })] }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
   });
 
-  it("returns 500 when an item has invalid quantity (0)", async () => {
-    // validateCartItems throws "Invalid quantity" — not in surfaced error list
+  it("returns 400 when an item has invalid quantity (0)", async () => {
     const res = await POST(makeRequest({ items: [validItem({ quantity: 0 })] }));
-    expect(res.status).toBe(500);
+    expect(res.status).toBe(400);
   });
 
   it("server-side price prevents sub-minimum total (security fix)", async () => {
