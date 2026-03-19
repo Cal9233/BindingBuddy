@@ -4,11 +4,27 @@ import { getPayloadClient } from "@/lib/payload";
 import crypto from "crypto";
 
 // ---------------------------------------------------------------------------
+// P10: Dedicated TOTP cookie signing secret with fallback warning
+// ---------------------------------------------------------------------------
+function getTotpCookieSecret(): string | null {
+  const dedicated = process.env.TOTP_COOKIE_SECRET;
+  if (dedicated) return dedicated;
+
+  const fallback = process.env.PAYLOAD_SECRET;
+  if (!fallback) return null;
+  console.warn(
+    "[security] TOTP_COOKIE_SECRET is not set — falling back to shared secret. " +
+      "Set a dedicated TOTP_COOKIE_SECRET for proper key separation."
+  );
+  return fallback;
+}
+
+// ---------------------------------------------------------------------------
 // HIGH-4: Validate HMAC-signed totp_verified cookie is scoped to current user
 // MED-6: Removed console.log that logged userId and cookie values
 // ---------------------------------------------------------------------------
 function validateTotpCookie(cookieValue: string, userId: string): boolean {
-  const secret = process.env.TOTP_COOKIE_SECRET || process.env.PAYLOAD_SECRET;
+  const secret = getTotpCookieSecret();
   if (!secret) return false;
 
   const parts = cookieValue.split(":");

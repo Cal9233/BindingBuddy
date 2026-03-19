@@ -1,0 +1,100 @@
+rules:
+  # R1: Case/Format Blindness — regex without case-insensitive flag on hex/alphanumeric input
+  - id: case-insensitive-hex-regex
+    patterns:
+      - pattern-regex: '/\^\[0-9a-f\]'
+      - pattern-not-regex: '/\^\[0-9a-fA-F\]'
+    message: >
+      Regex matches lowercase hex only. If input can be mixed case, use [0-9a-fA-F] or the `i` flag.
+      See regression pattern R1.
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      include:
+        - src/
+
+  # R2: Collection Index 0 Only Validation
+  - id: array-validate-first-only
+    pattern: |
+      $ARR[0]
+    message: >
+      Accessing only index 0 of a collection. If this is validation logic, ensure ALL items are validated,
+      not just the first. See regression pattern R2.
+    languages: [typescript, javascript]
+    severity: INFO
+    paths:
+      include:
+        - src/app/api/
+        - src/lib/
+
+  # R4: Timezone Drift — new Date() with string literal missing timezone
+  - id: date-without-utc
+    pattern: |
+      new Date("...")
+    message: >
+      Date constructed from string literal. Ensure timezone is explicit (append 'Z' for UTC or specify offset).
+      See regression pattern R4.
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      include:
+        - src/
+
+  # R6: Untyped Session Fields via as-any Cast
+  - id: no-session-any-cast
+    patterns:
+      - pattern: ($EXPR as any).$FIELD
+    message: >
+      Accessing field via `as any` cast bypasses TypeScript type checking. Define proper types or use
+      type guards instead. See regression pattern R6.
+    languages: [typescript]
+    severity: ERROR
+    paths:
+      include:
+        - src/
+
+  # R6 variant: @ts-ignore without justification
+  - id: no-ts-ignore
+    pattern-regex: '//\s*@ts-ignore(?!\s+--\s+\S)'
+    message: >
+      @ts-ignore without justification comment. Use @ts-expect-error with a reason, or fix the type error.
+      See regression pattern R6.
+    languages: [typescript]
+    severity: WARNING
+    paths:
+      include:
+        - src/
+
+  # R7: Hardcoded fallback UUIDs/IDs
+  - id: no-hardcoded-uuids
+    pattern-regex: '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
+    message: >
+      Hardcoded UUID detected. If this is a fallback/default value, empty/missing fields should fail
+      validation instead. See regression pattern R7.
+    languages: [typescript, javascript]
+    severity: WARNING
+    paths:
+      include:
+        - src/
+      exclude:
+        - src/**/*.test.*
+        - src/**/*.spec.*
+        - __tests__/
+        - scripts/
+
+  # R9: Sensitive data in error messages
+  - id: no-sensitive-data-in-errors
+    patterns:
+      - pattern: |
+          new Error(`... ${$EXPR} ...`)
+      - metavariable-regex:
+          metavariable: $EXPR
+          regex: '(secret|token|password|apiKey|sessionId|objectId|_id)'
+    message: >
+      Error message may contain sensitive data. Log full details server-side, return generic message
+      to client. See regression pattern R9.
+    languages: [typescript, javascript]
+    severity: ERROR
+    paths:
+      include:
+        - src/

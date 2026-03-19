@@ -11,13 +11,29 @@ import crypto from "crypto";
 import { checkoutLimiter } from "@/lib/rate-limit";
 
 // ---------------------------------------------------------------------------
+// P10: Dedicated PayPal signing secret with fallback warning
+// ---------------------------------------------------------------------------
+function getPayPalSigningSecret(): string {
+  const dedicated = process.env.PAYPAL_SIGNING_SECRET;
+  if (dedicated) return dedicated;
+
+  const fallback = process.env.PAYLOAD_SECRET;
+  if (!fallback) {
+    throw new Error("Server configuration error");
+  }
+  console.warn(
+    "[security] PAYPAL_SIGNING_SECRET is not set — falling back to shared secret. " +
+      "Set a dedicated PAYPAL_SIGNING_SECRET for proper key separation."
+  );
+  return fallback;
+}
+
+// ---------------------------------------------------------------------------
 // HIGH-2: Sign the server-generated orderId for capture verification
 // ---------------------------------------------------------------------------
 function signOrderId(orderId: string): string {
-  const secret = process.env.PAYPAL_SIGNING_SECRET || process.env.PAYLOAD_SECRET;
-  if (!secret) throw new Error("PAYPAL_SIGNING_SECRET or PAYLOAD_SECRET must be set");
   return crypto
-    .createHmac("sha256", secret)
+    .createHmac("sha256", getPayPalSigningSecret())
     .update(`paypal_order:${orderId}`)
     .digest("hex");
 }
@@ -133,7 +149,7 @@ export async function POST(req: NextRequest) {
     });
     const pendingOrderB64 = Buffer.from(pendingOrderData).toString("base64");
     const pendingOrderSig = crypto
-      .createHmac("sha256", process.env.PAYPAL_SIGNING_SECRET || process.env.PAYLOAD_SECRET!)
+      .createHmac("sha256", getPayPalSigningSecret())
       .update(`pp_pending:${pendingOrderB64}`)
       .digest("hex");
 

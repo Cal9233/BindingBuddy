@@ -16,11 +16,28 @@ import {
 const RATE_LIMIT_NAMESPACE = "totp";
 
 // ---------------------------------------------------------------------------
+// P10: Dedicated TOTP cookie signing secret with fallback warning
+// ---------------------------------------------------------------------------
+function getTotpCookieSecret(): string {
+  const dedicated = process.env.TOTP_COOKIE_SECRET;
+  if (dedicated) return dedicated;
+
+  const fallback = process.env.PAYLOAD_SECRET;
+  if (!fallback) {
+    throw new Error("Server configuration error");
+  }
+  console.warn(
+    "[security] TOTP_COOKIE_SECRET is not set — falling back to shared secret. " +
+      "Set a dedicated TOTP_COOKIE_SECRET for proper key separation."
+  );
+  return fallback;
+}
+
+// ---------------------------------------------------------------------------
 // HIGH-4: HMAC-based totp_verified cookie scoped to user
 // ---------------------------------------------------------------------------
 function createTotpCookieValue(userId: string): string {
-  const secret = process.env.TOTP_COOKIE_SECRET || process.env.PAYLOAD_SECRET;
-  if (!secret) throw new Error("TOTP_COOKIE_SECRET or PAYLOAD_SECRET must be set");
+  const secret = getTotpCookieSecret();
   const timestamp = Date.now().toString(36);
   const hmac = crypto
     .createHmac("sha256", secret)

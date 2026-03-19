@@ -12,11 +12,27 @@ import crypto from "crypto";
 // ---------------------------------------------------------------------------
 const PAYPAL_ORDER_ID_REGEX = /^[A-Z0-9]{17}$/;
 
+// ---------------------------------------------------------------------------
+// P10: Dedicated PayPal signing secret with fallback warning
+// ---------------------------------------------------------------------------
+function getPayPalSigningSecret(): string {
+  const dedicated = process.env.PAYPAL_SIGNING_SECRET;
+  if (dedicated) return dedicated;
+
+  const fallback = process.env.PAYLOAD_SECRET;
+  if (!fallback) {
+    throw new Error("Server configuration error");
+  }
+  console.warn(
+    "[security] PAYPAL_SIGNING_SECRET is not set — falling back to shared secret. " +
+      "Set a dedicated PAYPAL_SIGNING_SECRET for proper key separation."
+  );
+  return fallback;
+}
+
 function signOrderId(orderId: string): string {
-  const secret = process.env.PAYPAL_SIGNING_SECRET || process.env.PAYLOAD_SECRET;
-  if (!secret) throw new Error("PAYPAL_SIGNING_SECRET or PAYLOAD_SECRET must be set");
   return crypto
-    .createHmac("sha256", secret)
+    .createHmac("sha256", getPayPalSigningSecret())
     .update(`paypal_order:${orderId}`)
     .digest("hex");
 }
@@ -42,8 +58,12 @@ function decodePendingOrderCookie(
 } | null {
   if (!cookieValue) return null;
 
-  const secret = process.env.PAYPAL_SIGNING_SECRET || process.env.PAYLOAD_SECRET;
-  if (!secret) return null;
+  let secret: string;
+  try {
+    secret = getPayPalSigningSecret();
+  } catch {
+    return null;
+  }
 
   const dotIdx = cookieValue.lastIndexOf(".");
   if (dotIdx === -1) return null;

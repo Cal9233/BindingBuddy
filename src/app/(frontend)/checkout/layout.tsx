@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import PayPalProvider from "@/components/checkout/PayPalProvider";
 
 export const metadata: Metadata = {
   title: "Checkout – Binding Buddy",
@@ -10,5 +11,5 @@ export default function CheckoutLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return <PayPalProvider>{children}</PayPalProvider>;
 }

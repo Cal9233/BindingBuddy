@@ -19,12 +19,94 @@ const SHARED_DIRECTIVES = [
   "frame-ancestors 'none'",
 ];
 
-export function middleware(request: NextRequest) {
+// ---------------------------------------------------------------------------
+// P27: TOTP cookie HMAC validation for Edge Runtime (Web Crypto API)
+// R4: Uses Date.now() (UTC milliseconds) — no locale-dependent dates.
+// R6: Typed cookie parts — no `as any`.
+// R7: Missing/empty/malformed cookies are treated as "not verified".
+// ---------------------------------------------------------------------------
+const TOTP_COOKIE_MAX_AGE_MS = 8 * 60 * 60 * 1000; // 8 hours
+
+interface TotpCookieParts {
+  userId: string;
+  timestamp: string;
+  hmac: string;
+}
+
+function parseTotpCookie(cookieValue: string): TotpCookieParts | null {
+  if (!cookieValue) return null;
+  const parts = cookieValue.split(":");
+  if (parts.length !== 3) return null;
+  const [userId, timestamp, hmac] = parts;
+  if (!userId || !timestamp || !hmac) return null;
+  return { userId, timestamp, hmac };
+}
+
+/**
+ * Validate the HMAC-signed totp_verified cookie using Web Crypto API (Edge Runtime).
+ * Returns true only if the cookie has a valid HMAC and has not expired.
+ */
+async function validateTotpCookieEdge(cookieValue: string): Promise<boolean> {
+  const secret = process.env.TOTP_COOKIE_SECRET || process.env.PAYLOAD_SECRET;
+  if (!secret) return false;
+
+  const parsed = parseTotpCookie(cookieValue);
+  if (!parsed) return false;
+
+  // R4: Validate timestamp is a valid base-36 number and within the 8-hour window
+  const cookieTimeMs = parseInt(parsed.timestamp, 36);
+  if (isNaN(cookieTimeMs) || cookieTimeMs <= 0) return false;
+  if (Date.now() - cookieTimeMs > TOTP_COOKIE_MAX_AGE_MS) return false;
+
+  // Compute expected HMAC using Web Crypto API
+  const encoder = new TextEncoder();
+  const keyData = encoder.encode(secret);
+  const messageData = encoder.encode(`${parsed.userId}:${parsed.timestamp}`);
+
+  try {
+    const cryptoKey = await crypto.subtle.importKey(
+      "raw",
+      keyData,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const signatureBuffer = await crypto.subtle.sign("HMAC", cryptoKey, messageData);
+    const expectedHmac = Array.from(new Uint8Array(signatureBuffer))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    // Constant-time comparison: compare all chars, don't short-circuit
+    if (parsed.hmac.length !== expectedHmac.length) return false;
+    let mismatch = 0;
+    for (let i = 0; i < expectedHmac.length; i++) {
+      mismatch |= parsed.hmac.charCodeAt(i) ^ expectedHmac.charCodeAt(i);
+    }
+    return mismatch === 0;
+  } catch {
+    return false;
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // MFA enforcement is handled entirely by TOTPProvider (admin.components.providers).
-  // It covers all cases: not logged in, TOTP not enabled, needs verification, already verified.
-  // No middleware redirect needed — avoids redirect loops for unauthenticated users.
+  // P27: Server-side TOTP enforcement for /admin routes
+  // Validates HMAC signature + expiry on totp_verified cookie — no DB hits.
+  // Exempt: API routes (have their own auth), static assets (matcher config below)
+  if (
+    pathname.startsWith("/admin") &&
+    !pathname.startsWith("/api/")
+  ) {
+    const totpCookie = request.cookies.get("totp_verified")?.value;
+    // R7: Missing, empty, or invalid cookies all redirect to MFA verification
+    const isValid = totpCookie ? await validateTotpCookieEdge(totpCookie) : false;
+    if (!isValid) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/mfa-verify";
+      return NextResponse.redirect(url);
+    }
+  }
 
   // --- CSP injection (skip admin routes — handled by static header in next.config.ts) ---
   const requestHeaders = new Headers(request.headers);
